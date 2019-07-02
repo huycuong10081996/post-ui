@@ -143,7 +143,7 @@ const buildPostItemElement = (post) => {
 
   const postItemDescription = postItemElement.querySelector('#postItemDescription');
   if (postItemDescription) {
-    postItemDescription.innerHTML = post.description;
+    postItemDescription.innerText = utils.truncateTextlength(post.description, 150);
     // postItemTitle.removeAttribute('id');
   }
 
@@ -181,7 +181,6 @@ const buildPostItemElement = (post) => {
       e.stopPropagation();
     });
   }
-
   return postItemElement;
 };
 
