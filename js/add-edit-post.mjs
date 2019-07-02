@@ -13,13 +13,13 @@ const getFormValue = () => {
 };
 
 const setFormValue = (post) => {
-    utils.setValueByElementId('postTitle');
+    utils.setValueByElementId('postTitle', post.title);
 
-    utils.setValueByElementId('postAuthor');
+    utils.setValueByElementId('postAuthor', post.author);
 
-    utils.setValueByElementId('postDescription');
+    utils.setValueByElementId('postDescription', post.description);
 
-    utils.setBackgroundImageByElementId('postHeroImage');
+    utils.setBackgroundImageByElementId('postHeroImage', post.imageUrl);
 }
 
 const isValid = () => {
