@@ -42,7 +42,7 @@ const validatePostForm = () => {
 
 
 
-const handlePostFormSubmit = (postID) => {
+const handlePostFormSubmit =async (postID) => {
     const postForm = getFormValue();
     const isValid=validatePostForm();
     if (isValid) {
