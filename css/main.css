@@ -57,3 +57,6 @@ ul {
 ::placeholder {
   font-style: italic;
 }
+.title-name{
+  color: red;
+}

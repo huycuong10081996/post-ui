@@ -5,8 +5,11 @@ export default class BaseApi {
     getResourceName() {
         throw new Error('Plese implement this method');
     }
-    getAll() {
-        const url = `${AppConstants.API_URL}/${this.getResourceName()}`;
+    getAll(a) {
+        let url = ``;
+        if (a) {
+            url = `${AppConstants.API_URL}/${this.getResourceName()}?${a}`;
+        } else url = `${AppConstants.API_URL}/${this.getResourceName()}`;
         return fetchClient.get(url);
     } //get post list
 

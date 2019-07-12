@@ -9,25 +9,25 @@ import utils from './utils.js';
 
 // ------------Learning-----------
 
-const getPostList = () => { //trả về 1 cái promise
+// const getPostList = () => { //trả về 1 cái promise
 
-  const options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-  };
+//   const options = {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//   };
 
-  return fetch('https://js-post-api.herokuapp.com/api/posts', options) //return promise
-    .then(response => {
-      // console.log(response);
-      if (response.status >= 200 && response.status <= 300) {
-        return response.json(); //parse body về dạng json
-        //respose.json() trả về 1 cái promise
-      }
-    });
-};
-getPostList().then(data => console.log(data));
+//   return fetch('https://js-post-api.herokuapp.com/api/posts', options) //return promise
+//     .then(response => {
+//       // console.log(response);
+//       if (response.status >= 200 && response.status <= 300) {
+//         return response.json(); //parse body về dạng json
+//         //respose.json() trả về 1 cái promise
+//       }
+//     });
+// };
+// getPostList().then(data => console.log(data));
 
 // async function abc(){}
 
@@ -83,24 +83,30 @@ const updatePostDetailAsync = async (post) => {
   if (response.status >= 200 && response.status < 300)
     return await response.json();
 }
-const init = async () => {
-  // Write your logic here ....
-  // const data = await getPostListAsync();
-  // console.log(data);
 
-  // const post = await getPostDetailAsync('1356b24a-8b63-41dc-9bbe-1bfd5f4a219a');
-  // console.log(post);
 
-  // post.author = 'Cuong Nguyen';
-  // const updatedPost = await updatePostDetailAsync(post);
-  // console.log('Updated post: ', updatedPost);
-  const postList = await postAPI.getAll();
-  // console.log(postList);
+const renderListPost = (pagination) => {
+  let page = pagination._page;
 
-  // const post = await postAPI.getDetail('1356b24a-8b63-41dc-9bbe-1bfd5f4a219a');
-  // console.log(post);
-  renderPostApp(postList);
+  const nextElement = document.querySelector('#next');
+  if (nextElement) {
+    nextElement.addEventListener('click', () => {
+      ++page;
+      nextElement.href = `?_limit=6&_page=${page}`;
+    })
+  }
+
+  const previousElement = document.querySelector('#previous');
+  if (previousElement) {
+    previousElement.addEventListener('click', () => {
+      --page;
+      previousElement.href = `?_limit=6&_page=${page}`;
+    });
+  }
+
 };
+
+
 
 // const data = await getPostListAsync();
 
@@ -194,4 +200,49 @@ const renderPostApp = (postsList) => {
   }
 };
 
+const init = async () => {
+  // Write your logic here ....
+  // const data = await getPostListAsync();
+  // console.log(data);
+
+  // const post = await getPostDetailAsync('1356b24a-8b63-41dc-9bbe-1bfd5f4a219a');
+  // console.log(post);
+
+  // post.author = 'Cuong Nguyen';
+  // const updatedPost = await updatePostDetailAsync(post);
+  // console.log('Updated post: ', updatedPost);
+  // let count = 1;
+
+
+
+  // console.log(count);
+
+  // const params = URLSearchParams(window.location.search);
+  // const page = params.get('_page');
+
+
+  const paramStrings = new URLSearchParams(window.location.search);
+  let page = paramStrings.get('_page');
+
+
+  const paramLimit = {
+    _limit: 6,
+    _page: page || 1,
+  };
+
+  const paramString = new URLSearchParams(paramLimit);
+  console.log(paramString.toString());
+
+
+
+  const postList = await postAPI.getAll(paramString);
+  console.log(postList);
+  const data = postList.data;
+  const pagination = postList.pagination;
+  // console.log(postList);
+  renderListPost(pagination);
+  // const post = await postAPI.getDetail('1356b24a-8b63-41dc-9bbe-1bfd5f4a219a');
+  // console.log(post);
+  renderPostApp(data);
+};
 init();

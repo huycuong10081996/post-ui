@@ -1,14 +1,15 @@
 import utils from './utils.js';
 import postApi from './api/postApi.js';
 import querryString from '../libs/querryString.js';
-'use strict';
+import AppConstants from './appConstants.js';
+
 const getFormValue = () => {
     const form = {
         title: utils.getValueByElementId('postTitle'),
         author: utils.getValueByElementId('postAuthor'),
         description: utils.getValueByElementId('postDescription'),
         imageUrl: utils.getBackgroundImageByElementId('postHeroImage'),
-    }
+    };
     return form;
 };
 
@@ -20,9 +21,9 @@ const setFormValue = (post) => {
     utils.setValueByElementId('postDescription', post.description);
 
     utils.setBackgroundImageByElementId('postHeroImage', post.imageUrl);
-}
+};
 
-const isValid = () => {
+const validatePostForm = () => {
     const isValid = true;
 
     const title = utils.getValueByElementId('postTitle');
@@ -39,8 +40,11 @@ const isValid = () => {
     return isValid;
 };
 
+
+
 const handlePostFormSubmit = (postID) => {
     const postForm = getFormValue();
+    const isValid=validatePostForm();
     if (isValid) {
         try {
             const payLoad = {
@@ -51,7 +55,7 @@ const handlePostFormSubmit = (postID) => {
                 await postApi.update(payLoad);
                 alert('Luu thanh cong');
             } else {
-                const newPost = postApi.add(payLoad);
+                const newPost = await postApi.add(payLoad);
                 const editUrl = `add-edit-post.html?postId=${newPost.id}`;
                 window.location = editUrl;
                 alert('Tao thanh cong bai moi');
@@ -62,18 +66,47 @@ const handlePostFormSubmit = (postID) => {
     }
 };
 
+const handleChangImageClick = () => {
+    const randomId = 1 + Math.trunc(Math.random() * 1000);
+
+    const imageUrl = `https://picsum.photos/id/${randomId}/${AppConstants.DEFAULT_IMAGE_WIDTH}/${AppConstants.DEFAULT_IMAGE_HEIGHT}`;
+
+    utils.setBackgroundImageByElementId('postHeroImage', imageUrl);
+};
+
 const init = async () => {
-    const search = window.location.search;
+    let search = window.location.search;
     search = search ? search.substring(1) : '';
 
     const {
-        postDetailId
+        postId
     } = querryString.parse(search);
+
+    // return true or false
+    const isEditMode = !!postId;
+    if (isEditMode) {
+        const post = await postApi.getDetail(postId);
+
+        setFormValue(post);
+    
+
+    const gotoDetailPageLink = document.querySelector('#goToDetailPageLink');
+    
+        gotoDetailPageLink.href = `post-detail.html?postID=${post.id}`;
+        gotoDetailPageLink.innerHTML = '<i class="fas fa-eye mr-1"></i> View post detail';
+    } else {
+        handleChangImageClick();
+    }
+
+    const postChangeImageButton = document.querySelector('#postChangeImage');
+    if (postChangeImageButton) {
+        postChangeImageButton.addEventListener('click', handleChangImageClick);
+    }
 
     const postForm = document.querySelector('#postForm');
     if (postForm) {
         postForm.addEventListener('submit', (e) => {
-            handlePostFormSubmit(postID);
+            handlePostFormSubmit(postId);
             e.preventDefault();
         });
     }

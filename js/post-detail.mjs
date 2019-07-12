@@ -3,7 +3,6 @@ import utils from './utils.js';
 
 const renderPost = (post) => {
 
-
     //set banner image
     utils.setBackgroundImageByElementId('postHeroImage', post.imageUrl);
 
