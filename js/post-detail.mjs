@@ -1,60 +1,56 @@
 import postApi from './api/postApi.js';
 import utils from './utils.js';
 
-const renderPost = (post) => {
 
-    //set banner image
+const renderPost = (post) => {
+    // Set banner image
     utils.setBackgroundImageByElementId('postHeroImage', post.imageUrl);
 
+    // Set title
 
-    // set tittle
-    // const h1TitleElement = document.querySelector('#postDetailTitle');
-    // if (h1TitleElement) {
-    //     h1TitleElement.innerText = post.title;
-    // }
     utils.setTextByElementId('postDetailTitle', post.title);
 
-    // set author
+    // Set author
     utils.setTextByElementId('postDetailAuthor', post.author);
-    // set date time
+
+    //  Set date time
+    // const dateString = utils.formatDate(post.updatedAt);
     const dateString = ` - ${utils.formatDate(post.updatedAt)}`;
     utils.setTextByElementId('postDetailTimeSpan', dateString);
 
-    // set description
+    // Set description
     utils.setTextByElementId('postDetailDescription', post.description);
+
 };
 
-// update href and content
 const renderEditLink = (post) => {
-    const editLink = document.querySelector('a#goToEditPageLink');
-    // console.log(editLink);
+    const editLink = document.querySelector('#goToEditPageLink');
     if (editLink) {
         editLink.href = `add-edit-post.html?postId=${post.id}`;
         editLink.innerHTML = '<i class="fas fa-edit"></i> Edit post';
     }
 };
 
+// MAIN LOGIC
+// -----------------------
 const init = async () => {
-    // Write your logic here ....
     try {
-        //retrieve postId from query params
-        // lấy postId về
+        // Retrieve postId from query params
         const params = new URLSearchParams(window.location.search);
         const postId = params.get('postId');
         if (!postId) return;
 
-        // fetch post detail by id
+        // Fetch post detail by id
         const post = await postApi.getDetail(postId);
 
-        // render post
+        // Render post
         renderPost(post);
 
-        // update edit link
+        // Update edit link
         renderEditLink(post);
 
-
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 };
 

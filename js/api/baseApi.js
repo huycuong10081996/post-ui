@@ -5,10 +5,10 @@ export default class BaseApi {
     getResourceName() {
         throw new Error('Plese implement this method');
     }
-    getAll(a) {
+    getAll(limit) {
         let url = ``;
-        if (a) {
-            url = `${AppConstants.API_URL}/${this.getResourceName()}?${a}`;
+        if (limit) {
+            url = `${AppConstants.API_URL}/${this.getResourceName()}?${limit}`;
         } else url = `${AppConstants.API_URL}/${this.getResourceName()}`;
         return fetchClient.get(url);
     } //get post list

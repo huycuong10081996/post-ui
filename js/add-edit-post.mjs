@@ -1,116 +1,119 @@
 import utils from './utils.js';
 import postApi from './api/postApi.js';
-import querryString from '../libs/querryString.js';
 import AppConstants from './appConstants.js';
 
-const getFormValue = () => {
-    const form = {
-        title: utils.getValueByElementId('postTitle'),
-        author: utils.getValueByElementId('postAuthor'),
-        description: utils.getValueByElementId('postDescription'),
-        imageUrl: utils.getBackgroundImageByElementId('postHeroImage'),
-    };
-    return form;
-};
-
-const setFormValue = (post) => {
-    utils.setValueByElementId('postTitle', post.title);
-
-    utils.setValueByElementId('postAuthor', post.author);
-
-    utils.setValueByElementId('postDescription', post.description);
-
-    utils.setBackgroundImageByElementId('postHeroImage', post.imageUrl);
-};
-
 const validatePostForm = () => {
-    const isValid = true;
-
+    let isValid = true;
+  
+    // title is required
     const title = utils.getValueByElementId('postTitle');
     if (!title) {
-        utils.addClassByElementId('postTitle', ['is-invalid']);
-        isValid = false;
+      utils.addClassByElementId('postTitle', ['is-invalid']);
+      isValid = false;
     }
-
+  
+    // author is required
     const author = utils.getValueByElementId('postAuthor');
     if (!author) {
-        utils.addClassByElementId('postAuthor', ['is-invalid']);
-        isValid = false;
+      utils.addClassByElementId('postAuthor', ['is-invalid']);
+      isValid = false;
     }
+  
     return isValid;
-};
+  };
+  
+  const getFormValue = () => {
+    const formValue = {};
 
+    const controlNameList = ['Title', 'Author', 'Description'];
 
-
-const handlePostFormSubmit =async (postID) => {
-    const postForm = getFormValue();
-    const isValid=validatePostForm();
-    if (isValid) {
-        try {
-            const payLoad = {
-                id: postID,
-                ...postForm,
-            };
-            if (postID) {
-                await postApi.update(payLoad);
-                alert('Luu thanh cong');
-            } else {
-                const newPost = await postApi.add(payLoad);
-                const editUrl = `add-edit-post.html?postId=${newPost.id}`;
-                window.location = editUrl;
-                alert('Tao thanh cong bai moi');
-            }
-        } catch (error) {
-            alert('Co loi khi luu post: ', error);
+    const isValid = validatePostForm();
+        if (!isValid) {
+            throw new Error();
         }
+    controlNameList.forEach(controlName => {
+        const inputName = document.getElementById(`post${controlName}`);
+        formValue[controlName.toLowerCase()] = inputName.value;
+    })
+
+    formValue.imageUrl = utils.getBackgroundImageByElementId('postHeroImage');
+    return formValue;
+} 
+
+const handleFormSubmit = async () => {
+
+    let isValid = validatePostForm();
+    if(isValid){
+    const formValue = getFormValue();
+    const newPost = {
+        ...formValue,
+    };
+    await postApi.add(newPost);
+    const editPageUrl = `add-edit-post.html?postId=${newPost.id}`;
+    window.location = editPageUrl;
+}
+}
+
+const handleEditButtonClick = async (id) => {
+    const formValue = getFormValue();
+    const newPost = {
+        ...formValue,
+        id,  
+    };
+    await postApi.update(newPost);
+    alert('Cập nhật thành công');
+}
+
+
+const handleChangeImageClick = (url) => {
+    if (url) {
+        return utils.setBackgroundImageByElementId('postHeroImage', url);
     }
-};
-
-const handleChangImageClick = () => {
     const randomId = 1 + Math.trunc(Math.random() * 1000);
-
     const imageUrl = `https://picsum.photos/id/${randomId}/${AppConstants.DEFAULT_IMAGE_WIDTH}/${AppConstants.DEFAULT_IMAGE_HEIGHT}`;
-
     utils.setBackgroundImageByElementId('postHeroImage', imageUrl);
 };
 
+
+
+const setFormValue = (formValue) => {
+    const controlNameList = ['Title', 'Author', 'Description'];
+
+    controlNameList.forEach(controlName => {
+        const inputName = document.getElementById(`post${controlName}`);
+        inputName.value = formValue[controlName.toLowerCase()];
+    })
+}
+
 const init = async () => {
-    let search = window.location.search;
-    search = search ? search.substring(1) : '';
-
-    const {
-        postId
-    } = querryString.parse(search);
-
-    // return true or false
-    const isEditMode = !!postId;
-    if (isEditMode) {
-        const post = await postApi.getDetail(postId);
-
-        setFormValue(post);
-    
-
-    const gotoDetailPageLink = document.querySelector('#goToDetailPageLink');
-    
-        gotoDetailPageLink.href = `post-detail.html?postID=${post.id}`;
-        gotoDetailPageLink.innerHTML = '<i class="fas fa-eye mr-1"></i> View post detail';
-    } else {
-        handleChangImageClick();
-    }
-
     const postChangeImageButton = document.querySelector('#postChangeImage');
     if (postChangeImageButton) {
-        postChangeImageButton.addEventListener('click', handleChangImageClick);
+        postChangeImageButton.addEventListener('click', (e) => handleChangeImageClick());
     }
 
-    const postForm = document.querySelector('#postForm');
-    if (postForm) {
-        postForm.addEventListener('submit', (e) => {
-            handlePostFormSubmit(postId);
+    const formSubmit = document.querySelector('#postForm');
+        
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('postId');
+    if (!postId) {
+        handleChangeImageClick();
+        if (formSubmit) {
+            formSubmit.addEventListener('submit', (e) => {
+                e.preventDefault();
+                handleFormSubmit();
+            })
+        }
+        return ;
+    }
+    const post = await postApi.getDetail(postId);
+    if (formSubmit) {
+        formSubmit.addEventListener('submit', (e) => {
             e.preventDefault();
-        });
+            handleEditButtonClick(post.id);
+        })
     }
-
-};
+    handleChangeImageClick(post.imageUrl);
+    setFormValue(post);
+}
 
 init();
