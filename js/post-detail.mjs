@@ -7,7 +7,6 @@ const renderPost = (post) => {
     utils.setBackgroundImageByElementId('postHeroImage', post.imageUrl);
 
     // Set title
-
     utils.setTextByElementId('postDetailTitle', post.title);
 
     // Set author
@@ -55,3 +54,11 @@ const init = async () => {
 };
 
 init();
+
+// Example
+
+// const renderPost = (post) => {
+//     const page = 1;
+//     const limit = 10;
+//     const search = `_limit=${limit}&_page=${page}`;
+// }

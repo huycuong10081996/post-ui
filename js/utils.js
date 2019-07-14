@@ -3,9 +3,9 @@ import AppConstants from './appConstants.js';
 const truncateTextlength = (text, length) => {
   if (length < 0 || !text) return '';
 
-  const truncatedText = text.length > length
-    ? `${text.substring(0, length - 3)}...`
-    : text;
+  const truncatedText = text.length > length ?
+    `${text.substring(0, length - 3)}...` :
+    text;
 
   return truncatedText;
 };

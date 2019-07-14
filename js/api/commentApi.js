@@ -1,23 +1,14 @@
 import fetchClient from './fetchClient.js';
 import AppConstants from '../appConstants.js';
 
-export default class BaseApi {
+class CommentApi {
   getResourceName() {
-    throw new Error('Please implement this method');
+    return 'comments';
   }
 
-
-
-  getAll(limit) {
-    let url = '';
-    if (limit) {
-      url = `${AppConstants.API_URL}/${this.getResourceName()}?${limit}`;
-    } else {
-      url = `${AppConstants.API_URL}/${this.getResourceName()}`;
-    }
-
+  getAll() {
+    const url = `${AppConstants.API_URL}/${this.getResourceName()}`;
     return fetchClient.get(url);
-
   }
 
   getDetail(postId) {
@@ -40,3 +31,6 @@ export default class BaseApi {
     return fetchClient.delete(url);
   }
 }
+
+const commentApi = new CommentApi();
+export default commentApi;

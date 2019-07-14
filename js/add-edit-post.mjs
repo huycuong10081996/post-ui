@@ -1,69 +1,50 @@
-import utils from './utils.js';
-import postApi from './api/postApi.js';
-import AppConstants from './appConstants.js';
+import utils from "./utils.js";
+import postApi from "./api/postApi.js";
+import AppConstants from "./appConstants.js";
 
 const validatePostForm = () => {
     let isValid = true;
-  
+
     // title is required
     const title = utils.getValueByElementId('postTitle');
     if (!title) {
-      utils.addClassByElementId('postTitle', ['is-invalid']);
-      isValid = false;
+        utils.addClassByElementId('postTitle', ['is-invalid']);
+        isValid = false;
     }
-  
+
     // author is required
     const author = utils.getValueByElementId('postAuthor');
     if (!author) {
-      utils.addClassByElementId('postAuthor', ['is-invalid']);
-      isValid = false;
+        utils.addClassByElementId('postAuthor', ['is-invalid']);
+        isValid = false;
     }
-  
+
     return isValid;
-  };
-  
-  const getFormValue = () => {
-    const formValue = {};
-
-    const controlNameList = ['Title', 'Author', 'Description'];
-
-    const isValid = validatePostForm();
-        if (!isValid) {
-            throw new Error();
-        }
-    controlNameList.forEach(controlName => {
-        const inputName = document.getElementById(`post${controlName}`);
-        formValue[controlName.toLowerCase()] = inputName.value;
-    })
-
-    formValue.imageUrl = utils.getBackgroundImageByElementId('postHeroImage');
-    return formValue;
-} 
+};
 
 const handleFormSubmit = async () => {
 
     let isValid = validatePostForm();
-    if(isValid){
-    const formValue = getFormValue();
-    const newPost = {
-        ...formValue,
-    };
-    await postApi.add(newPost);
-    const editPageUrl = `add-edit-post.html?postId=${newPost.id}`;
-    window.location = editPageUrl;
-}
+    if (isValid) {
+        const formValue = getFormValue();
+        const newPost = {
+            ...formValue
+        };
+        await postApi.add(newPost);
+        const editPageUrl = `add-edit-post.html?postId=${newPost.id}`;
+        window.location = editPageUrl;
+    }
 }
 
 const handleEditButtonClick = async (id) => {
     const formValue = getFormValue();
     const newPost = {
         ...formValue,
-        id,  
+        id
     };
     await postApi.update(newPost);
-    alert('Cập nhật thành công');
+    alert('Post updated')
 }
-
 
 const handleChangeImageClick = (url) => {
     if (url) {
@@ -74,7 +55,23 @@ const handleChangeImageClick = (url) => {
     utils.setBackgroundImageByElementId('postHeroImage', imageUrl);
 };
 
+const getFormValue = () => {
+    const formValue = {};
 
+    const controlNameList = ['Title', 'Author', 'Description'];
+
+    const isValid = validatePostForm();
+    if (!isValid) {
+        throw new Error();
+    }
+    controlNameList.forEach(controlName => {
+        const inputName = document.getElementById(`post${controlName}`);
+        formValue[controlName.toLowerCase()] = inputName.value;
+    })
+
+    formValue.imageUrl = utils.getBackgroundImageByElementId('postHeroImage');
+    return formValue;
+}
 
 const setFormValue = (formValue) => {
     const controlNameList = ['Title', 'Author', 'Description'];
@@ -88,11 +85,11 @@ const setFormValue = (formValue) => {
 const init = async () => {
     const postChangeImageButton = document.querySelector('#postChangeImage');
     if (postChangeImageButton) {
-        postChangeImageButton.addEventListener('click', (e) => handleChangeImageClick());
+        postChangeImageButton.addEventListener('click', event => handleChangeImageClick());
     }
 
     const formSubmit = document.querySelector('#postForm');
-        
+
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('postId');
     if (!postId) {
@@ -103,7 +100,7 @@ const init = async () => {
                 handleFormSubmit();
             })
         }
-        return ;
+        return;
     }
     const post = await postApi.getDetail(postId);
     if (formSubmit) {
@@ -112,6 +109,12 @@ const init = async () => {
             handleEditButtonClick(post.id);
         })
     }
+    const goToDetailPageLink = document.querySelector('#goToDetailPageLink');
+    if (goToDetailPageLink) {
+        goToDetailPageLink.href = `post-detail.html?postId=${postId}`;
+        goToDetailPageLink.innerHTML = '<i class="fas fa-eye mr-1"></i> View Post Detail ';
+    }
+
     handleChangeImageClick(post.imageUrl);
     setFormValue(post);
 }
